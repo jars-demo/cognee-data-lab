@@ -10,9 +10,9 @@ dataset, handed to ``cognee.remember``::
     )
 
 Each document writes the dataset's context out as plain statements ("dataset X
-is owned by Revenue Analytics (Business Owner)", "dataset raw.orders is
-upstream of X", "column email of X is tagged pii") so cognify extracts them as
-graph relations.
+is owned by Revenue Analytics", "Revenue Analytics is the Business Owner of
+dataset X", "dataset raw.orders is upstream of X", "column email of X is tagged
+pii") so cognify extracts them as graph relations.
 
 Sync is a full snapshot within the chosen scope (``write_disposition="replace"``):
 
@@ -302,7 +302,10 @@ def render_dataset(entity: dict) -> str:
     )
     if owners:
         for label, kind in owners:
-            lines.append(f"Dataset {name} is owned by {label} ({kind}).")
+            # The ownership type gets its own sentence so the owner's name stays one entity.
+            lines.append(f"Dataset {name} is owned by {label}.")
+            if kind != "Owner":
+                lines.append(f"{label} is the {kind} of dataset {name}.")
     else:
         lines.append(f"Dataset {name} has no owner recorded in DataHub.")
     domain = ((entity.get("domain") or {}).get("domain") or {}).get("properties") or {}
@@ -317,14 +320,16 @@ def render_dataset(entity: dict) -> str:
         lines.append(f"Dataset {name} is linked to glossary term {term}.")
 
     upstream = entity.get("upstream") or {}
+    relationships = upstream.get("relationships") or []
+    # Upstream lineage can also return data jobs; only datasets are written as parents.
     parents = sorted(
         {
             (
                 urn_name(rel["entity"]["urn"]) or rel["entity"].get("name") or rel["entity"]["urn"],
                 (rel["entity"].get("platform") or {}).get("name"),
             )
-            for rel in upstream.get("relationships") or []
-            if rel.get("entity", {}).get("urn")
+            for rel in relationships
+            if (rel.get("entity", {}).get("urn") or "").startswith("urn:li:dataset:")
         }
     )
     for parent, parent_platform in parents:
@@ -334,9 +339,10 @@ def render_dataset(entity: dict) -> str:
         )
     if not parents:
         lines.append(f"Dataset {name} has no upstream lineage recorded in DataHub.")
-    elif (upstream.get("total") or 0) > len(parents):
+    if (upstream.get("total") or 0) > len(relationships):
         lines.append(
-            f"(Only the first {len(parents)} of {upstream['total']} upstream datasets are listed.)"
+            f"(Upstream lineage was truncated: DataHub reports {upstream['total']} upstream "
+            f"entities and only the first {len(relationships)} were read.)"
         )
 
     lines += ["", f"Columns of dataset {name}:"]

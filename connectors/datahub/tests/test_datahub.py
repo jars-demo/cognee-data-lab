@@ -199,7 +199,9 @@ def test_document_states_ownership_domain_tags_terms_lineage_and_columns():
     assert row["title"] == f"DataHub dataset {name}"
     assert f"URN: {urn(name)}" in text
     assert "Platform: postgres; environment: PROD; container: retail_demo > analytics" in text
-    assert f"Dataset {name} is owned by Revenue Analytics (Business Owner)." in text
+    assert f"Dataset {name} is owned by Revenue Analytics." in text
+    assert f"Revenue Analytics is the Business Owner of dataset {name}." in text
+    assert "(Business Owner)" not in text
     assert f"Dataset {name} belongs to domain Retail." in text
     assert f"Dataset {name} is tagged finance." in text
     assert f"Dataset {name} is linked to glossary term Revenue." in text
@@ -227,6 +229,33 @@ def test_missing_metadata_is_stated_not_invented():
     assert "has no upstream lineage recorded in DataHub." in text
     assert "No schema recorded in DataHub." in text
     assert "tagged" not in text
+
+
+def test_upstream_lists_datasets_only_and_flags_real_truncation():
+    job = "urn:li:dataJob:(urn:li:dataFlow:(airflow,retail,PROD),transform_revenue)"
+    ds = _dataset(
+        "retail_demo.analytics.rev",
+        upstream={
+            "total": 2,
+            "relationships": [
+                {
+                    "entity": {
+                        "urn": urn("retail_demo.raw.orders"),
+                        "platform": {"name": "postgres"},
+                    }
+                },
+                {"entity": {"urn": job, "name": "transform_revenue"}},
+            ],
+        },
+    )
+    text = render_dataset(ds)
+    assert "retail_demo.raw.orders is upstream of" in text
+    assert "transform_revenue" not in text
+    assert "truncated" not in text
+    ds["upstream"]["total"] = 150
+    assert "DataHub reports 150 upstream entities and only the first 2 were read" in (
+        render_dataset(ds)
+    )
 
 
 def test_document_is_stable_under_reordering():

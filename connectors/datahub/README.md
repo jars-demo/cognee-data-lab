@@ -19,7 +19,8 @@ There is one document per dataset:
 Relationships are written out as sentences, so cognify extracts them as graph edges:
 
 ```
-Dataset retail_demo.analytics.daily_revenue is owned by Revenue Analytics (Business Owner).
+Dataset retail_demo.analytics.daily_revenue is owned by Revenue Analytics.
+Revenue Analytics is the Business Owner of dataset retail_demo.analytics.daily_revenue.
 Dataset retail_demo.analytics.daily_revenue belongs to domain Retail Demo.
 Dataset retail_demo.raw.orders is upstream of retail_demo.analytics.daily_revenue; ...
   Column email of dataset retail_demo.raw.customers is tagged retail_demo.pii.

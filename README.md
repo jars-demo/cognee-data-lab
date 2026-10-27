@@ -16,6 +16,8 @@
 <p align="center">
   <a href="https://youtu.be/9-4LVBFVDww"><img src="docs/images/demo-thumbnail.png" width="720" alt="Watch the demo" /></a><br />
   <a href="https://youtu.be/9-4LVBFVDww"><b>▶ Watch the demo (2:46)</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://jishanahmedshaikh.medium.com/connecting-airflow-and-datahub-to-cognee-building-memory-across-a-data-platform-1892d6ded364"><b>Read the write-up</b></a>
 </p>
 
 ---

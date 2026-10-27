@@ -1,0 +1,108 @@
+# Cognee Data Engineering Lab.
+#
+#   docker compose up -d                   the lab only: http://localhost:8765
+#                                          connect your own Airflow and DataHub in the app
+#   docker compose --profile demo up -d    the lab + a demo Airflow 3.3 and Postgres warehouse
+#
+# DataHub is never started here: use your own, or `datahub docker quickstart`.
+# A .env file is optional; it only pre-fills the Connect page (see .env.example).
+name: cognee-lab
+
+x-host: &host
+  extra_hosts:
+    - "host.docker.internal:host-gateway" # lets the lab reach services on your machine
+
+services:
+  lab:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    <<: *host
+    environment:
+      # Inside the container, "localhost" is the container itself, so services on
+      # your machine are reached through host.docker.internal.
+      AIRFLOW_URL: ${LAB_AIRFLOW_URL:-http://host.docker.internal:8088}
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-admin}
+      AIRFLOW_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
+      DATAHUB_GMS_URL: ${DATAHUB_GMS_URL:-http://host.docker.internal:8080}
+      DATAHUB_FRONTEND_URL: ${DATAHUB_FRONTEND_URL:-http://localhost:9002}
+      DATAHUB_GMS_TOKEN: ${DATAHUB_GMS_TOKEN:-}
+      DATAHUB_PLATFORMS: ${DATAHUB_PLATFORMS:-postgres}
+      LLM_PROVIDER_ID: ${LLM_PROVIDER_ID:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL_ID: ${LLM_MODEL_ID:-}
+    ports:
+      - "${LAB_PORT:-8765}:8765"
+    volumes:
+      - labdata:/data
+    restart: unless-stopped
+
+  # -- demo profile: Airflow 3.3 over a synthetic retail warehouse ---------------
+  postgres:
+    profiles: ["demo", "seed"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5433:5432" # demo warehouse, reachable by DataHub ingestion via the host
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 20
+
+  airflow:
+    profiles: ["demo"]
+    image: apache/airflow:3.3.0-python3.11
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:admin
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/simple_auth_passwords.json
+      AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:-local-dev-only-change-me}
+      AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "30"
+      AIRFLOW_CONN_RETAIL_DEMO: postgresql://airflow:airflow@postgres:5432/retail_demo
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
+    command:
+      - bash
+      - -c
+      - |
+        printf '{"admin": "%s"}' "$$AIRFLOW_ADMIN_PASSWORD" > /opt/airflow/simple_auth_passwords.json
+        exec airflow standalone
+    ports:
+      - "8088:8080" # 8080 on the host is usually DataHub GMS
+    volumes:
+      - ./infra/airflow/dags:/opt/airflow/dags
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 10s
+      retries: 30
+      start_period: 60s
+
+  # One-off, run by ./seed/seed_datahub.sh: catalogs the warehouse into your DataHub.
+  seed:
+    profiles: ["seed"]
+    build: ./seed
+    <<: *host
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      WAREHOUSE_HOST_PORT: postgres:5432
+      DATAHUB_GMS_URL: ${DATAHUB_GMS_URL:-http://host.docker.internal:8080}
+      DATAHUB_GMS_TOKEN: ${DATAHUB_GMS_TOKEN:-}
+    volumes:
+      - ./seed:/seed
+
+volumes:
+  pgdata:
+  labdata:

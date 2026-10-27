@@ -1,0 +1,217 @@
+/* Shared building blocks: cards, buttons, fields, badges, logos, feedback. */
+
+.card {
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card.highlight { border-color: var(--accent-line); }
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.card-head h3 { font-size: 15px; font-weight: 800; }
+.card-head p { margin-top: 2px; color: var(--text-2); font-size: 13px; }
+.card-title { display: flex; align-items: center; gap: 14px; }
+
+.icon-tile {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.icon-tile .svg { width: 20px; height: 20px; }
+
+/* -- Logos ----------------------------------------------------------------- */
+.logo {
+  display: inline-grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--size) * 0.26);
+  background: #fff;
+  color: var(--brand);
+}
+.logo svg { width: 62%; height: 62%; }
+.logo-file img { width: 70%; height: 70%; object-fit: contain; }
+.logo-mono {
+  border: 0;
+  background: var(--brand);
+  color: #fff;
+  font-size: calc(var(--size) * 0.38);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.logo-stack { display: inline-flex; flex: none; }
+.logo-stack .logo + .logo { margin-left: -6px; box-shadow: 0 0 0 2px #fff; }
+
+/* -- Buttons --------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.btn:hover { background: var(--surface-2); text-decoration: none; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover { border-color: var(--accent-strong); background: var(--accent-strong); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.btn.loading .svg { animation: spin 0.8s linear infinite; }
+.btn.loading::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.link { font-weight: 600; }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+
+/* -- Fields ---------------------------------------------------------------- */
+.form { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { color: var(--text-2); font-size: 12px; font-weight: 700; }
+.field-hint { color: var(--muted); font-size: 12px; }
+
+input, select, textarea {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+textarea { height: auto; padding: 10px 12px; resize: vertical; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+input::placeholder, textarea::placeholder { color: #a1a1aa; }
+
+details > summary { color: var(--text-2); font-weight: 700; cursor: pointer; }
+details.scope > .grid-2 { margin-top: 12px; }
+
+/* -- Badges, results, notes ------------------------------------------------ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge .svg { width: 13px; height: 13px; }
+.badge.ok, .badge.state-done { background: var(--ok-soft); color: var(--ok); }
+.badge.state-running { background: var(--accent-soft); color: var(--accent); }
+.badge.state-failed { background: var(--bad-soft); color: var(--bad); }
+
+.result {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.result .svg { margin-top: 2px; }
+.result[data-ok="true"] { background: var(--ok-soft); color: var(--ok); }
+.result[data-ok="false"] { background: var(--bad-soft); color: var(--bad); }
+
+.note { margin-top: 14px; color: var(--muted); font-size: 12px; }
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid #f1dfb8;
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  min-height: 220px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* -- Spinner, shimmer, toast ----------------------------------------------- */
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.spinner.big { width: 28px; height: 28px; border-width: 3px; color: var(--accent); }
+
+.shimmer {
+  height: 12px;
+  margin-top: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-2) 0%, #ebebef 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+.shimmer.short { width: 60%; }
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: none; }
+.toast[data-kind="error"] { background: var(--bad); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }

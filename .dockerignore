@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.venv
+**/.lab
+**/__pycache__
+**/.ruff_cache
+**/.pytest_cache
+.env
+cognee-community
+lab

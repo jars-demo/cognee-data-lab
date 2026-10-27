@@ -47,9 +47,9 @@ import cognee
 from cognee_community_connector_datahub import datahub_source
 
 source = datahub_source(
-    base_url="http://localhost:8080",      # DataHub GMS
+    base_url="http://localhost:8080",  # DataHub GMS
     token="<personal access token>",
-    platforms=["postgres"],                # optional scope: domains=[urn], containers=[urn]
+    platforms=["postgres"],  # optional scope: domains=[urn], containers=[urn]
     frontend_url="http://localhost:9002",  # optional, for links stored with each document
 )
 await cognee.remember(source, dataset_name="datahub", max_rows_per_table=0)

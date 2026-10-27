@@ -1,0 +1,21 @@
+# Catalogs the lab's retail_demo warehouse (infra/docker-compose.yml) into DataHub.
+# Run through ./seed/seed_datahub.sh, or directly with the DataHub CLI:
+#   WAREHOUSE_HOST_PORT=localhost:5433 DATAHUB_GMS_URL=http://localhost:8080 \
+#   DATAHUB_GMS_TOKEN=... datahub ingest -c seed/postgres_recipe.yml
+source:
+  type: postgres
+  config:
+    host_port: ${WAREHOUSE_HOST_PORT}
+    database: retail_demo
+    username: airflow
+    password: airflow
+    schema_pattern:
+      allow: ["^raw$", "^analytics$"]
+    include_views: false
+    profiling:
+      enabled: false
+sink:
+  type: datahub-rest
+  config:
+    server: ${DATAHUB_GMS_URL}
+    token: ${DATAHUB_GMS_TOKEN}

@@ -1,0 +1,23 @@
+.env
+*.env.local
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
+.cognee_data/
+.cognee_system/
+*.log
+seed/manifest.json
+seed/overrides.txt
+cognee-community/
+
+# lab app state (holds saved keys)
+.lab/
+.lab-*/
+node_modules/
+*.pyc
+.DS_Store
+.idea/
+.vscode/

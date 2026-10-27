@@ -268,6 +268,22 @@ def test_runs_are_a_separate_document_with_failures_and_skipped_outputs():
     assert "lab_failure_1" not in structure["content"]
 
 
+def test_failed_task_that_writes_an_asset_says_what_it_did_not_update():
+    fake = FakeAirflow(
+        runs={
+            "retail_analytics_pipeline": [
+                {"dag_run_id": "r1", "run_type": "scheduled", "state": "failed"},
+            ]
+        },
+        tis={"r1": [{"task_id": "transform_revenue", "state": "failed", "try_number": 2}]},
+    )
+    _, runs = _rows(fake, include_runs=True)
+    assert (
+        "task transform_revenue failed (try 2). "
+        "It did not update dataset retail_demo.analytics.daily_revenue" in runs["content"]
+    )
+
+
 def test_runs_request_is_bounded():
     fake = FakeAirflow()
     _rows(fake, include_runs=True, runs_window_days=3, max_runs_per_dag=2)
@@ -314,6 +330,14 @@ def test_username_password_login_and_reauth_on_expiry():
     fake.valid_tokens = {"good-token"}  # every issued JWT has now expired
     client.get("/api/v2/dags")
     assert [path for m, path, p in fake.calls].count("/auth/token") == 2
+
+
+def test_login_token_is_redacted_from_errors():
+    fake = FakeAirflow()
+    client = _client(fake, username="admin", password="secret")
+    client.get("/api/v2/dags")
+    token = client._token
+    assert client._redact(f"echo {token} and secret") == "echo *** and ***"
 
 
 def test_bad_credentials_and_missing_credentials():

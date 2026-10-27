@@ -108,6 +108,7 @@ class AirflowClient:
         self._token = response.json().get("access_token")
         if not self._token:
             raise AirflowAPIError("Airflow /auth/token returned no access_token")
+        self._secrets.append(self._token)
 
     def get(self, path: str, params: dict | list | None = None) -> dict:
         if not self._token:
@@ -279,15 +280,14 @@ def render_runs(
         )
         for ti in sorted(tasks_by_run.get(run_id, []), key=lambda t: t["task_id"]):
             state = ti.get("state")
+            writes = io.get((dag_id, ti["task_id"]), {}).get("writes", [])
+            note = "".join(f" It did not update {_asset_phrase(u)}." for u in sorted(set(writes)))
             if state == "failed":
                 lines.append(
-                    f"  In run {run_id}, task {ti['task_id']} failed (try {ti.get('try_number')})."
+                    f"  In run {run_id}, task {ti['task_id']} failed "
+                    f"(try {ti.get('try_number')}).{note}"
                 )
             elif state == "upstream_failed":
-                writes = io.get((dag_id, ti["task_id"]), {}).get("writes", [])
-                note = "".join(
-                    f" It did not update {_asset_phrase(u)}." for u in sorted(set(writes))
-                )
                 lines.append(
                     f"  In run {run_id}, task {ti['task_id']} did not run because an upstream "
                     f"task failed.{note}"

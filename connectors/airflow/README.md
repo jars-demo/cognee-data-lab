@@ -22,7 +22,8 @@ There is one document per DAG:
 **Optional, off by default (`include_runs=True`):** one more document per DAG summarising its recent runs, bounded by `runs_window_days` and `max_runs_per_dag`. For each run it lists:
 - the run state and timings
 - the failed tasks
-- the tasks skipped because an upstream task failed, together with the assets they therefore did not update
+- the tasks skipped because an upstream task failed
+- for both, the assets they therefore did not update
 
 This is a recent-history window, not incremental sync.
 

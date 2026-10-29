@@ -202,4 +202,5 @@ the shared dataset identifier and the scoping options is very welcome on the iss
 
 ## License
 
-[Apache License 2.0](LICENSE), the same as cognee-community.
+[Apache License 2.0](LICENSE), the same as cognee-community. Third-party logos are covered in
+[NOTICE](NOTICE).

@@ -3,6 +3,7 @@ name = "cognee-community-connector-datahub"
 version = "0.1.0"
 description = "DataHub data-source connector for cognee: sync dataset metadata, ownership, glossary and lineage into memory (full snapshot + forget-on-delete)"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     # Needs document-mode routing (DOCUMENT_SOURCE_ATTR), table-scoped orphan

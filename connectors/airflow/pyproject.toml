@@ -3,6 +3,7 @@ name = "cognee-community-connector-airflow"
 version = "0.1.0"
 description = "Apache Airflow data-source connector for cognee: sync DAGs, tasks, dependencies, assets and recent runs into memory (full snapshot + forget-on-delete)"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     # Needs document-mode routing (DOCUMENT_SOURCE_ATTR), table-scoped orphan

@@ -1,0 +1,12 @@
+cognee Data Engineering Lab
+Copyright 2026 Jishanahmed AR Shaikh
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+Third-party trademarks
+----------------------
+app/frontend/public/logos/ contains the logos of Apache Airflow, DataHub and
+cognee. They are trademarks of their owners (The Apache Software Foundation,
+the DataHub project and Topoteretes UG). They are used only to identify the
+systems these connectors work with. This lab is not an official project of,
+and is not endorsed by, any of them.
